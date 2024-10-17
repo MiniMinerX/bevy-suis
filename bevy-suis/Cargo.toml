@@ -7,7 +7,7 @@ license = "MIT"
 [dependencies]
 bevy = "0.14"
 bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr" }
-schminput = { git = "https://github.com/Schmarni-Dev/schminput", features = [
+schminput = { git = "https://github.com/Schmarni-Dev/schminput", rev = "dba7c57",features = [
 	"xr",
 ] }
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
