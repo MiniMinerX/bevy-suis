@@ -4,7 +4,7 @@ use bevy::prelude::*;
 use bevy_mod_openxr::spaces::OxrSpaceLocationFlags;
 #[cfg(not(target_family = "wasm"))]
 use bevy_mod_openxr::{
-    features::handtracking::{spawn_hand_bones, OxrHandTracker},
+    features::handtracking::{bevy_mod_xr::hands::spawn_hand_bones, OxrHandTracker},
     session::OxrSession,
 };
 use bevy_mod_xr::{
