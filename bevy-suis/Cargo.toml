@@ -11,7 +11,7 @@ schminput = { git = "https://github.com/Schmarni-Dev/schminput", rev = "dba7c57"
 	"xr",
 ] }
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
-bevy_mod_openxr = { git = "https://github.com/awtterpip/bevy_oxr" }
+bevy_mod_openxr = "0.1.0-rc1"
 openxr = { version = "0.18.0", default-features = false }
 
 [lints.clippy]
