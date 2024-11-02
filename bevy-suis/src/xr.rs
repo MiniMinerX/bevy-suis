@@ -188,8 +188,8 @@ fn spawn_input_hands(
             return;
         }
     };
-    let left_bones = spawn_hand_bones(&mut cmds, (SuisInputXrHand, LeftHand, HandSide::Left));
-    let right_bones = spawn_hand_bones(&mut cmds, (SuisInputXrHand, RightHand, HandSide::Right));
+    let left_bones = spawn_hand_bones(&mut cmds, |_| (SuisInputXrHand, LeftHand, HandSide::Left));
+    let right_bones = spawn_hand_bones(&mut cmds, |_|(SuisInputXrHand, RightHand, HandSide::Right));
     cmds.entity(root).push_children(&left_bones);
     cmds.entity(root).push_children(&right_bones);
     let left_tracker_entity = cmds

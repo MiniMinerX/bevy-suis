@@ -5,7 +5,7 @@ use bevy_mod_xr::{
     session::{XrPreDestroySession, XrSessionCreated, XrState, XrTrackingRoot},
 };
 #[cfg(not(target_family = "wasm"))]
-use schminput::openxr::{AttachSpaceToEntity, OxrInputPlugin};
+use schminput::openxr::{OxrInputPlugin};
 use schminput::{prelude::*, SchminputPlugin, SchminputSet};
 
 use crate::InputMethodActive;
