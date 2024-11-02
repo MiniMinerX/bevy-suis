@@ -21,13 +21,14 @@ impl Plugin for SuisXrControllerPlugin {
     fn build(&self, app: &mut App) {
         use bevy_mod_openxr::spaces::OxrSpaceSyncSet;
 
-        if *app.world().resource::<XrState>() == XrState::Unavailable {
-            return;
-        }
+        
         if !app.is_plugin_added::<SchminputPlugin>() {
             // assuming that all plugins are missing, adding minimal plugins
             app.add_plugins(SchminputPlugin);
             app.add_plugins(OxrInputPlugin);
+        }
+        if *app.world().resource::<XrState>() == XrState::Unavailable {
+            return;
         }
         app.add_systems(XrSessionCreated, spawn_input_methods);
         app.add_systems(XrPreDestroySession, despawn_input_methods);
