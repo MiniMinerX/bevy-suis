@@ -6,12 +6,12 @@ license = "MIT"
 
 [dependencies]
 bevy = "0.14"
-bevy_mod_xr = "0.1.0-rc2"
+bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr" }
 schminput = { git = "https://github.com/Schmarni-Dev/schminput", features = [
 	"xr",
 ] }
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
-bevy_mod_openxr = "0.1.0-rc2"
+bevy_mod_openxr = { git = "https://github.com/awtterpip/bevy_oxr" }
 openxr = { version = "0.18.0", default-features = false }
 
 [lints.clippy]

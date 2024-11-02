@@ -309,8 +309,8 @@ name = "bevy-suis"
 version = "0.1.0"
 dependencies = [
  "bevy",
- "bevy_mod_openxr 0.1.0-rc2",
- "bevy_mod_xr 0.1.0-rc2",
+ "bevy_mod_openxr",
+ "bevy_mod_xr",
  "openxr",
  "schminput",
 ]
@@ -770,26 +770,7 @@ source = "git+https://github.com/awtterpip/bevy_oxr#aea1cc66cd183765b40a8a1198ec
 dependencies = [
  "ash",
  "bevy",
- "bevy_mod_xr 0.1.0-rc1",
- "d3d12",
- "jni 0.20.0",
- "ndk-context",
- "openxr",
- "thiserror",
- "wgpu",
- "wgpu-hal",
- "winapi",
-]
-
-[[package]]
-name = "bevy_mod_openxr"
-version = "0.1.0-rc2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b9f0c7c2924f5e094736fb84b92cfa254e7f377c1bb414892180814970a2f464"
-dependencies = [
- "ash",
- "bevy",
- "bevy_mod_xr 0.1.0-rc2",
+ "bevy_mod_xr",
  "d3d12",
  "jni 0.20.0",
  "ndk-context",
@@ -804,15 +785,6 @@ dependencies = [
 name = "bevy_mod_xr"
 version = "0.1.0-rc1"
 source = "git+https://github.com/awtterpip/bevy_oxr#aea1cc66cd183765b40a8a1198ecaf3eb269e7cb"
-dependencies = [
- "bevy",
-]
-
-[[package]]
-name = "bevy_mod_xr"
-version = "0.1.0-rc2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b69dfb1294214294081499efed4162b76a1fee6d7fa0d598f1632ee7cf6da009"
 dependencies = [
  "bevy",
 ]
@@ -3293,8 +3265,8 @@ version = "0.1.0-rc1.1"
 source = "git+https://github.com/Schmarni-Dev/schminput#187dd59706a94b068122032d7e827fad8e4fd2bb"
 dependencies = [
  "bevy",
- "bevy_mod_openxr 0.1.0-rc1",
- "bevy_mod_xr 0.1.0-rc1",
+ "bevy_mod_openxr",
+ "bevy_mod_xr",
  "openxr",
 ]
 
