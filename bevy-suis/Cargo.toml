@@ -14,7 +14,7 @@ bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr.git", rev = "c0be01
 #], rev = "42a572a"}
 schminput = { git = "https://github.com/MiniMinerX/schminput", features = [
 	"xr",
-]}
+], branch = "revision"}
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # bevy_mod_openxr = { git = "https://github.com/awtterpip/bevy_oxr" }
