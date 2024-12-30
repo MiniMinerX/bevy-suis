@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT"
 
 [dependencies]
-bevy = "0.15"
+bevy = { version = "0.15", default-features = false }
 # bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr" }
 bevy_mod_xr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "dev/bevy-0.15.0"}
 
