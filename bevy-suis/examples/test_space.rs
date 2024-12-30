@@ -31,22 +31,22 @@ fn move_pointer(
 ) {
     let mut p = pointer.single_mut();
     if keys.pressed(KeyCode::KeyW) {
-        p.translation.z += time.delta_seconds() * -2.0;
+        p.translation.z += time.delta_secs() * -2.0;
     }
     if keys.pressed(KeyCode::KeyS) {
-        p.translation.z += time.delta_seconds() * 2.0;
+        p.translation.z += time.delta_secs() * 2.0;
     }
     if keys.pressed(KeyCode::KeyA) {
-        p.translation.x += time.delta_seconds() * -2.0;
+        p.translation.x += time.delta_secs() * -2.0;
     }
     if keys.pressed(KeyCode::KeyD) {
-        p.translation.x += time.delta_seconds() * 2.0;
+        p.translation.x += time.delta_secs() * 2.0;
     }
     if keys.pressed(KeyCode::KeyE) {
-        p.translation.y += time.delta_seconds() * 2.0;
+        p.translation.y += time.delta_secs() * 2.0;
     }
     if keys.pressed(KeyCode::KeyQ) {
-        p.translation.y += time.delta_seconds() * -2.0;
+        p.translation.y += time.delta_secs() * -2.0;
     }
 }
 

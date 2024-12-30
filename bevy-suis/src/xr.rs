@@ -8,7 +8,7 @@ use bevy_mod_openxr::{
     session::OxrSession,
 };
 use bevy_mod_xr::{
-    hands::{HandBone, HandBoneRadius, LeftHand, RightHand, XrHandBoneEntities, HAND_JOINT_COUNT},
+    hands::{HandBone, XrHandBoneRadius, LeftHand, RightHand, XrHandBoneEntities, HAND_JOINT_COUNT},
     session::{XrPreDestroySession, XrSessionCreated, XrTrackingRoot},
 };
 
@@ -109,7 +109,7 @@ fn update_hand_input_methods(
     >,
     flag_query: Query<&OxrSpaceLocationFlags>,
     xr_hand_tracker_query: Query<&XrHandBoneEntities>,
-    xr_hand_joint_query: Query<(&GlobalTransform, &HandBoneRadius)>,
+    xr_hand_joint_query: Query<(&GlobalTransform, &XrHandBoneRadius)>,
 ) {
     use openxr::SpaceLocationFlags;
 
@@ -246,7 +246,7 @@ impl Joint {
             radius: 0.0,
         }
     }
-    fn from_data((transform, radius): (&GlobalTransform, &HandBoneRadius)) -> Self {
+    fn from_data((transform, radius): (&GlobalTransform, &XrHandBoneRadius)) -> Self {
         let (_, rot, pos) = transform.to_scale_rotation_translation();
         Self {
             pos,
@@ -300,7 +300,7 @@ pub struct Hand {
     pub little: Finger,
 }
 impl Hand {
-    pub fn from_data(data: &[(&GlobalTransform, &HandBoneRadius); HAND_JOINT_COUNT]) -> Hand {
+    pub fn from_data(data: &[(&GlobalTransform, &XrHandBoneRadius); HAND_JOINT_COUNT]) -> Hand {
         Hand {
             thumb: Thumb {
                 tip: Joint::from_data(data[HandBone::ThumbTip as usize]),
