@@ -7,7 +7,7 @@ license = "MIT"
 [dependencies]
 bevy = { version = "0.15", default-features = false }
 # bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr" }
-bevy_mod_xr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "dev/bevy-0.15.0"}
+bevy_mod_xr = { git = "https://github.com/Schmarni-Dev/bevy_openxr.git", branch = "0.15rc"}
 
 #schminput = { git = "https://github.com/Schmarni-Dev/schminput", features = [
 #	"xr",
@@ -18,7 +18,7 @@ schminput = { git = "https://github.com/MiniMinerX/schminput", features = [
 
 [target.'cfg(not(target_family = "wasm"))'.dependencies]
 # bevy_mod_openxr = { git = "https://github.com/awtterpip/bevy_oxr" }
-bevy_mod_openxr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "dev/bevy-0.15.0"}
+bevy_mod_openxr = { git = "https://github.com/Schmarni-Dev/bevy_openxr.git", branch = "0.15rc"}
 
 openxr = { version = "0.18.0", default-features = false }
 
