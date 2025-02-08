@@ -6,7 +6,7 @@ license = "MIT"
 
 [dependencies]
 bevy = { version = "0.15", default-features = false, features = ["bevy_gizmos"]}
-# bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr" }
+bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr" }
 
 #schminput = { git = "https://github.com/Schmarni-Dev/schminput", features = [
 #	"xr",
