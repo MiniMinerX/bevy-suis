@@ -1,8 +1,6 @@
 use bevy::prelude::*;
-use bevy_suis::xr_controllers::{
-    default_bindings::{SuisXrControllerBindingSet, SupportedProfiles},
-    interaction_profiles::SupportedInteractionProfiles,
-};
+
+use bevy_suis::default_input_methods::xr_controllers::{default_bindings::{SuisXrControllerBindingSet, SupportedProfiles}, interaction_profiles::SupportedInteractionProfiles};
 use schminput::prelude::*;
 #[derive(Clone, Copy, Debug, Resource)]
 pub struct SuisXrActions {

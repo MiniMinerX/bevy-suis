@@ -9,12 +9,12 @@ default = ["xr"]
 xr = []
 
 [dependencies]
-bevy = { version = "0.16", features = ["track_location"] }
-bevy_mod_xr = "0.3"
-schminput = { version = "0.3", features = ["xr"] }
+bevy = { version = "0.17.0-dev", git = "https://github.com/bevyengine/bevy.git", features = ["track_location"] }
+bevy_mod_xr = {git = "https://github.com/MiniMinerX/bevy_oxr", branch = "dev-0.17"}
+schminput = { git = "https://github.com/MiniMinerX/Schminput", branch = "dev-0.17", features = ["xr"] }
 
 [dev-dependencies]
-bevy_mod_openxr = "0.3"
+bevy_mod_openxr = {git = "https://github.com/MiniMinerX/bevy_oxr", branch = "dev-0.17"}
 openxr = "0.19"
 
 [lints.clippy]

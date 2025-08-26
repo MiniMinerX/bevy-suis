@@ -4,8 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-bevy = "0.15"
-schminput = { git = "https://github.com/Schmarni-Dev/schminput", features = [
+bevy = { version = "0.17.0-dev", git = "https://github.com/bevyengine/bevy.git" }
+schminput = { git = "https://github.com/MiniMinerX/Schminput", branch = "dev-0.17", features = [
 	"xr",
-], branch = "action_set_priorities" }
+] }
 bevy-suis.path = ".."
