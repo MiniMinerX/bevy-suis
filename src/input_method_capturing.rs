@@ -107,7 +107,12 @@ fn get_data_for_handler(
     field_query: Query<(&Field, &GlobalTransform)>,
     creation_fn: impl FnOnce(Mat4, &Field, &GlobalTransform) -> InputData,
 ) -> Option<InputData> {
-    let global_to_handler = handler_transform.compute_matrix().inverse();
+    // Remove ANY scale from handler global transform
+    let (translation, rotation, _scale) = handler_transform.to_scale_rotation_translation();
+    
+    let handler_no_scale = Mat4::from_rotation_translation(rotation, translation);
+    
+    let global_to_handler = handler_no_scale.inverse();
     let field_entity = match input_handler.get_field_ref() {
         FieldRef::This => handler,
         FieldRef::Entity(entity) => entity,
