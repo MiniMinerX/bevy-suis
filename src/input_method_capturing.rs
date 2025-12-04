@@ -50,8 +50,13 @@ fn send_input_data(
         if let Some(handler) = method.captured_by() {
             let Ok((handler, handler_transform, input_handler)) = handlers
                 .get(handler)
-                .inspect_err(|err| error!("Invalid InputHandler Capturing InputMethod: {err}"))
+                .inspect_err(|err| {
+                    error!("Invalid InputHandler Capturing InputMethod: {err}");
+                })
             else {
+                // 💥 The captured handler was despawned or no longer matches the query.
+                //    Clear the capture ONCE so this doesn't spam every frame.
+                method.release();
                 continue;
             };
             let Some(data) = get_data_for_handler(
