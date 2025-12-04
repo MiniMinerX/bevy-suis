@@ -36,9 +36,9 @@ impl Plugin for InputMethodCapturingPlugin {
 }
 
 fn send_input_data(
-    methods: Query<(
+    mut methods: Query<(
         Entity,
-        &InputMethod,
+        &mut InputMethod,
         &NonSpatialInputData,
         &SpatialInputData,
     )>,
@@ -46,8 +46,10 @@ fn send_input_data(
     field_query: Query<(&Field, &GlobalTransform)>,
 ) {
     let mut handler_data = EntityHashMap::<Vec<InputData>>::default();
-    for (input_method, method, data, input) in &methods {
+
+    for (input_method, mut method, data, input) in &mut methods {
         if let Some(handler) = method.captured_by() {
+            // Handler is supposed to exist and have InputHandler
             let Ok((handler, handler_transform, input_handler)) = handlers
                 .get(handler)
                 .inspect_err(|err| {
@@ -59,6 +61,7 @@ fn send_input_data(
                 method.release();
                 continue;
             };
+
             let Some(data) = get_data_for_handler(
                 handler,
                 handler_transform,
@@ -75,8 +78,10 @@ fn send_input_data(
             ) else {
                 continue;
             };
+
             handler_data.entry(handler).or_default().push(data);
         } else {
+            // Not captured: send to all handlers normally
             for (handler, handler_transform, input_handler) in &handlers {
                 let Some(data) = get_data_for_handler(
                     handler,
@@ -94,6 +99,7 @@ fn send_input_data(
                 ) else {
                     continue;
                 };
+
                 handler_data.entry(handler).or_default().push(data);
             }
         }
