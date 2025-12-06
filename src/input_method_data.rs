@@ -36,10 +36,13 @@ impl SpatialInputData {
                 rotation: mat.to_scale_rotation_translation().1 * isometry.rotation,
                 translation: mat.transform_point3a(isometry.translation),
             }),
-            SpatialInputData::Ray(ray) => SpatialInputData::Ray(Ray3d {
-                origin: mat.transform_point3(ray.origin),
-                direction: Dir3::new_unchecked(mat.transform_vector3(ray.direction.as_vec3())),
-            }),
+            SpatialInputData::Ray(ray) => {
+                let transformed_dir = mat.transform_vector3(ray.direction.as_vec3());
+                SpatialInputData::Ray(Ray3d {
+                    origin: mat.transform_point3(ray.origin),
+                    direction: Dir3::new(transformed_dir).unwrap_or(Dir3::Z),
+                })
+            }
         }
     }
     pub fn distance(&self, field: &Field, field_transform: &GlobalTransform) -> f32 {
