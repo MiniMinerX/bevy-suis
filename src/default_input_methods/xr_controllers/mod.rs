@@ -190,9 +190,9 @@ fn update_method_data(
 }
 
 #[derive(Default, Component)]
-struct SuisXrControllerInputMethod;
+pub struct SuisXrControllerInputMethod;
 #[derive(Default, Component)]
-struct SuisXrControllerPoseSource;
+pub struct SuisXrControllerPoseSource;
 
 fn setup(mut cmds: Commands, action: Res<SuisXrControllerActions>) {
     cmds.spawn((
