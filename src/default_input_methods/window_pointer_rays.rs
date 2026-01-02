@@ -16,53 +16,48 @@ pub struct SuisWindowPointerRayPlugin;
 impl Plugin for SuisWindowPointerRayPlugin {
     fn build(&self, app: &mut App) {
         app.init_resource::<SuisMouseConfig>();
+        app.register_type::<SuisCameraRay>();
+
         app.add_systems(
             PreUpdate,
-            (update_input_method_ray, update_mouse_data)
+            (update_camera_ray, update_mouse_data)
                 .chain()
                 .in_set(SuisPreUpdateSets::UpdateInputMethods),
         );
-        app.add_systems(
-            PreUpdate,
-            spawn_cursors.before(SuisPreUpdateSets::PrepareMethodEvents),
-        );
     }
 }
 
-fn spawn_cursors(
-    query: Query<Entity, (With<Window>, Without<SuisWindowCursor>)>,
-    mut cmds: Commands,
-) {
-    for e in query {
-        cmds.entity(e).insert(SuisWindowCursor(Entity::PLACEHOLDER));
+/// Attach this to any Camera you want to act as a SUIS pointer source.
+/// The `pointer_entity` is automatically spawned via the `on_add` hook.
+#[derive(Component, Reflect, Debug)]
+#[reflect(Component)]
+#[component(on_add = spawn_pointer_for_camera)]
+pub struct SuisCameraRay {
+    pub pointer_entity: Entity,
+}
+
+impl Default for SuisCameraRay {
+    fn default() -> Self {
+        Self { pointer_entity: Entity::PLACEHOLDER }
     }
 }
 
-#[derive(Clone, Copy, Component, Debug)]
-#[component(on_add = spawn_cursor_method)]
-#[component(on_remove = despawn_cursor_method)]
-struct SuisWindowCursor(Entity);
-
-fn spawn_cursor_method(mut world: DeferredWorld, ctx: HookContext) {
-    let method = world
+/// Hook that spawns the actual SUIS InputMethod entity when the tag is added to a camera.
+fn spawn_pointer_for_camera(mut world: bevy::ecs::world::DeferredWorld, ctx: bevy::ecs::lifecycle::HookContext) {
+    let pointer = world
         .commands()
         .spawn((
+            Name::new("Camera Mouse Pointer"),
             InputMethod::new(),
             SpatialInputData::Ray(Ray3d::new(Vec3::ZERO, Dir3::NEG_Z)),
             MouseInputMethod,
             NonSpatialInputData::default(),
         ))
         .id();
-    world
-        .commands()
-        .entity(ctx.entity)
-        .insert(SuisWindowCursor(method));
-}
-fn despawn_cursor_method(mut world: DeferredWorld, ctx: HookContext) {
-    if let Some(SuisWindowCursor(method)) =
-        world.entity(ctx.entity).get::<SuisWindowCursor>().copied()
-    {
-        world.commands().entity(method).despawn();
+
+    // Store the spawned entity back into the component on the camera
+    if let Some(mut comp) = world.entity_mut(ctx.entity).get_mut::<SuisCameraRay>() {
+        comp.pointer_entity = pointer;
     }
 }
 
@@ -83,7 +78,47 @@ impl Default for SuisMouseConfig {
     }
 }
 
-// doesn't handle multiple windows correctly
+/// Updates the 3D Ray based on the camera's viewport and mouse position.
+fn update_camera_ray(
+    primary_window: Query<Entity, With<PrimaryWindow>>,
+    windows: Query<&Window>,
+    cams: Query<(&Camera, &GlobalTransform, &SuisCameraRay)>,
+    mut input_methods: Query<(&mut SpatialInputData, Has<InputMethodDisabled>)>,
+    mut cmds: Commands,
+) {
+    let Ok(primary_window_ent) = primary_window.single() else { return; };
+
+    for (camera, cam_transform, suis_ray) in cams.iter() {
+        let window_ent = match camera.target {
+            RenderTarget::Window(WindowRef::Primary) => primary_window_ent,
+            RenderTarget::Window(WindowRef::Entity(e)) => e,
+            _ => continue,
+        };
+
+        let Ok(window) = windows.get(window_ent) else { continue; };
+        let Ok((mut spatial_data, disabled)) = input_methods.get_mut(suis_ray.pointer_entity) else { continue; };
+
+        let mut ray_found = false;
+
+        // Bevy 0.17 viewport_to_world is viewport-aware. 
+        // If the mouse is outside the camera's rect, it returns an Error.
+        if let Some(cursor_pos) = window.cursor_position() {
+            if let Ok(ray) = camera.viewport_to_world(cam_transform, cursor_pos) {
+                *spatial_data = SpatialInputData::Ray(ray);
+                ray_found = true;
+
+                if disabled {
+                    cmds.entity(suis_ray.pointer_entity).remove::<InputMethodDisabled>();
+                }
+            }
+        }
+
+        if !ray_found && !disabled {
+            cmds.entity(suis_ray.pointer_entity).insert(InputMethodDisabled);
+        }
+    }
+}
+
 fn update_mouse_data(
     mut query: Query<
         (
@@ -98,93 +133,33 @@ fn update_mouse_data(
     config: Res<SuisMouseConfig>,
     handler_query: InputHandlerQueryHelper,
 ) {
-    let mut discrete = Vec2::ZERO;
-    let mut continuous = Vec2::ZERO;
+    // Accumulate scroll for the frame
+    let mut scroll_delta = Vec2::ZERO;
     for e in scroll.read() {
         match e.unit {
             bevy::input::mouse::MouseScrollUnit::Line => {
-                discrete.x += e.x;
-                discrete.y += e.y;
+                scroll_delta += Vec2::new(e.x, e.y) * config.discrete_multiplier;
             }
             bevy::input::mouse::MouseScrollUnit::Pixel => {
-                continuous.x += e.x;
-                continuous.y += e.y;
+                scroll_delta += Vec2::new(e.x, e.y) * config.continuous_multiplier;
             }
         }
     }
+
     for (mut data, mut input_method, spatial_data) in query.iter_mut() {
         data.select = buttons.pressed(MouseButton::Left) as u8 as f32;
         data.context = buttons.pressed(MouseButton::Middle) as u8 as f32;
         data.secondary = buttons.pressed(MouseButton::Right) as u8 as f32;
         data.grab = buttons.pressed(MouseButton::Forward) as u8 as f32;
-        data.scroll = Some(
-            (discrete * config.discrete_multiplier) + (continuous * config.continuous_multiplier),
-        );
-        let mut handlers =
-            handler_query.query_all_handler_fields(|(handler, field, field_transform)| {
-                (handler, spatial_data.distance(field, field_transform))
-            });
+        data.scroll = Some(scroll_delta);
+
+        // Sorting handlers based on spatial distance
+        let mut handlers = handler_query.query_all_handler_fields(|(handler, field, field_transform)| {
+            (handler, spatial_data.distance(field, field_transform))
+        });
 
         handlers.sort_by(|(_, d1), (_, d2)| d1.partial_cmp(d2).unwrap_or(Ordering::Equal));
-        let handlers = handlers.into_iter().map(|(e, _)| e).collect();
-        input_method.set_handler_order(handlers);
-    }
-}
-
-fn update_input_method_ray(
-    primary_window: Query<Entity, With<PrimaryWindow>>,
-    cams: Query<(&Camera, &GlobalTransform)>,
-    windows: Query<(&Window, &SuisWindowCursor)>,
-    mut input_method: Query<
-        (&mut SpatialInputData, Has<InputMethodDisabled>),
-        With<MouseInputMethod>,
-    >,
-    mut cmds: Commands,
-) {
-    let Ok(primary_window) = primary_window.single() else {
-        warn_once!("no primary window?");
-        return;
-    };
-
-    // this doesn't yet support multiple pointers per window, iirc that might be added in bevy 0.15
-    for ((camera, cam_transform), window) in cams.iter().filter_map(|v| match v.0.target {
-        RenderTarget::Window(w) => Some((v, w)),
-        _ => None,
-    }) {
-        let window = match window {
-            WindowRef::Primary => primary_window,
-            WindowRef::Entity(e) => e,
-        };
-        let Ok((window, suis_cursor)) = windows.get(window) else {
-            error_once!("Invalid window entity!");
-            continue;
-        };
-        let Ok((mut method, disabled)) = input_method.get_mut(suis_cursor.0) else {
-            error!("unable to get input method for window");
-            continue;
-        };
-        if let Some(pos) = window.cursor_position() {
-            if disabled {
-                cmds.entity(suis_cursor.0).remove::<InputMethodDisabled>();
-            }
-            if let Some(pos) = get_viewport_pos(pos, camera) {
-                if let Ok(ray) = camera.viewport_to_world(cam_transform, pos) {
-                    *method = SpatialInputData::Ray(ray);
-                }
-            }
-        } else if !disabled {
-            cmds.entity(suis_cursor.0).insert(InputMethodDisabled);
-        }
-    }
-}
-
-fn get_viewport_pos(logical_pos: Vec2, cam: &Camera) -> Option<Vec2> {
-    if let Some(viewport_rect) = cam.logical_viewport_rect() {
-        if !viewport_rect.contains(logical_pos) {
-            return None;
-        }
-        Some(logical_pos - viewport_rect.min)
-    } else {
-        Some(logical_pos)
+        let handler_order = handlers.into_iter().map(|(e, _)| e).collect();
+        input_method.set_handler_order(handler_order);
     }
 }
