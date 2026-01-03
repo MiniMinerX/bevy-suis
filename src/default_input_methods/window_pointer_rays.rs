@@ -94,7 +94,7 @@ fn update_camera_ray(
 ) {
     let Ok(primary_window_ent) = primary_window.single() else { return; };
 
-    for (camera, cam_transform, suis_ray) in cams.iter() {
+    for (camera, cam_global_transform, suis_ray) in cams.iter() {
         let window_ent = match camera.target {
             RenderTarget::Window(WindowRef::Primary) => primary_window_ent,
             RenderTarget::Window(WindowRef::Entity(e)) => e,
@@ -109,19 +109,29 @@ fn update_camera_ray(
         let mut ray_found = false;
 
         if let Some(cursor_pos) = window.cursor_position() {
-            if let Ok(ray) = camera.viewport_to_world(cam_transform, cursor_pos) {
+            if let Ok(ray) = camera.viewport_to_world(cam_global_transform, cursor_pos) {
                 *spatial_data = SpatialInputData::Ray(ray);
 
-                // 1. Set the origin
+                // 1. Position: Origin of the ray
                 handler_transform.translation = ray.origin;
 
-                // 2. Use looking_at for stable rotation
-                // We look from the origin towards (origin + direction)
-                // Vec3::Y is the standard Bevy "up" vector
-                let target = ray.origin + *ray.direction;
-                handler_transform.look_at(target, Vec3::Y);
+                // 2. Rotation: Construct a stable frame using the Camera's Right vector
+                // This prevents axial spinning because the ray's "Up" is tied to the Camera's "Up"
+                let ray_forward = *ray.direction; // This is our new Z (forward)
+                let cam_right = cam_global_transform.right(); // Use camera's stable X axis
+                
+                // Calculate the ray's local Up by crossing Forward and Right
+                // Bevy is Right-Handed: Cross(Forward, Right) = Up
+                let ray_up = ray_forward.cross(cam_right.into()).normalize_or(Vec3::Y);
+                
+                // Create the rotation from these look-at parameters
+                handler_transform.rotation = Quat::from_mat3(&Mat3::from_cols(
+                    ray_up.cross(ray_forward).normalize(), // Local Right
+                    ray_up,                                // Local Up
+                    -ray_forward,                          // Local Forward (Bevy uses -Z)
+                ));
 
-                // 3. Normalize scale to prevent "approaching infinity" issues
+                // 3. Scale: Force normalization
                 handler_transform.scale = Vec3::ONE;
 
                 ray_found = true;
