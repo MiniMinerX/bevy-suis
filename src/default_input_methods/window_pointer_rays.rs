@@ -151,7 +151,7 @@ fn update_mouse_data(
         data.select = buttons.pressed(MouseButton::Left) as u8 as f32;
         data.context = buttons.pressed(MouseButton::Middle) as u8 as f32;
         data.secondary = buttons.pressed(MouseButton::Right) as u8 as f32;
-        data.grab = buttons.pressed(MouseButton::Forward) as u8 as f32;
+        data.grab = buttons.pressed(MouseButton::Right) as u8 as f32;
         data.scroll = Some(scroll_delta);
 
         // Sorting handlers based on spatial distance
