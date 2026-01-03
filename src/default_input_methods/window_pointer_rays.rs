@@ -102,40 +102,41 @@ fn update_camera_ray(
         };
 
         let Ok(window) = windows.get(window_ent) else { continue; };
-        let Ok((mut spatial_data, mut input_method, mut handler_transform, disabled)) =
+        let Ok((mut spatial_data, mut input_method, mut handler_transform, is_disabled)) =
             input_methods.get_mut(suis_ray.pointer_entity)
         else { continue; };
 
         let mut ray_found = false;
 
         if let Some(cursor_pos) = window.cursor_position() {
-            if let Ok(ray) = camera.viewport_to_world(cam_transform, cursor_pos) {
-                *spatial_data = SpatialInputData::Ray(ray);
+            // 1. Check if the cursor is within this specific camera's viewport rect
+            let in_viewport = camera.logical_viewport_rect()
+                .map(|rect| rect.contains(cursor_pos))
+                .unwrap_or(false);
 
-                // 1. Set the origin
-                handler_transform.translation = ray.origin;
+            if in_viewport {
+                // 2. Attempt to generate the ray
+                if let Ok(ray) = camera.viewport_to_world(cam_transform, cursor_pos) {
+                    *spatial_data = SpatialInputData::Ray(ray);
 
-                // 2. Use looking_at for stable rotation
-                // We look from the origin towards (origin + direction)
-                // Vec3::Y is the standard Bevy "up" vector
-                let target = ray.origin + *ray.direction;
-                handler_transform.look_at(target, Vec3::Y);
+                    handler_transform.translation = ray.origin;
+                    let target = ray.origin + *ray.direction;
+                    handler_transform.look_at(target, Vec3::Y);
+                    handler_transform.scale = Vec3::ONE;
 
-                // 3. Normalize scale to prevent "approaching infinity" issues
-                handler_transform.scale = Vec3::ONE;
+                    ray_found = true;
 
-                ray_found = true;
-
-                if disabled {
-                    cmds.entity(suis_ray.pointer_entity)
-                        .remove::<InputMethodDisabled>();
+                    // Re-enable if it was previously disabled
+                    if is_disabled {
+                        cmds.entity(suis_ray.pointer_entity).remove::<InputMethodDisabled>();
+                    }
                 }
             }
         }
 
-        if !ray_found && !disabled {
-            cmds.entity(suis_ray.pointer_entity)
-                .insert(InputMethodDisabled);
+        // 3. If no ray was found (cursor off window OR off viewport), disable the input method
+        if !ray_found && !is_disabled {
+            cmds.entity(suis_ray.pointer_entity).insert(InputMethodDisabled);
         }
     }
 }
