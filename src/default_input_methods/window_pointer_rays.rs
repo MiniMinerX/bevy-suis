@@ -52,6 +52,7 @@ fn spawn_pointer_for_camera(mut world: bevy::ecs::world::DeferredWorld, ctx: bev
             SpatialInputData::Ray(Ray3d::new(Vec3::ZERO, Dir3::NEG_Z)),
             MouseInputMethod,
             NonSpatialInputData::default(),
+            Transform::default(),
         ))
         .id();
 
