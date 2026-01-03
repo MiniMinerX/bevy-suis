@@ -102,7 +102,7 @@ fn update_camera_ray(
         };
 
         let Ok(window) = windows.get(window_ent) else { continue; };
-        let Ok((mut spatial_data, mut input_method, mut handler_gt, disabled)) =
+        let Ok((mut spatial_data, mut input_method, mut handler_transform, disabled)) =
             input_methods.get_mut(suis_ray.pointer_entity)
         else { continue; };
 
@@ -112,10 +112,17 @@ fn update_camera_ray(
             if let Ok(ray) = camera.viewport_to_world(cam_transform, cursor_pos) {
                 *spatial_data = SpatialInputData::Ray(ray);
 
-                // Convert ray → transform
-                handler_gt.translation = ray.origin;
-                handler_gt.rotation =
-                    Quat::from_rotation_arc(Vec3::NEG_Z, *ray.direction);
+                // 1. Set the origin
+                handler_transform.translation = ray.origin;
+
+                // 2. Use looking_at for stable rotation
+                // We look from the origin towards (origin + direction)
+                // Vec3::Y is the standard Bevy "up" vector
+                let target = ray.origin + *ray.direction;
+                handler_transform.look_at(target, Vec3::Y);
+
+                // 3. Normalize scale to prevent "approaching infinity" issues
+                handler_transform.scale = Vec3::ONE;
 
                 ray_found = true;
 
@@ -124,7 +131,6 @@ fn update_camera_ray(
                         .remove::<InputMethodDisabled>();
                 }
             }
-
         }
 
         if !ray_found && !disabled {
@@ -133,7 +139,6 @@ fn update_camera_ray(
         }
     }
 }
-
 
 fn update_mouse_data(
     mut query: Query<
