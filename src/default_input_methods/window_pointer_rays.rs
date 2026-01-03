@@ -84,7 +84,12 @@ fn update_camera_ray(
     primary_window: Query<Entity, With<PrimaryWindow>>,
     windows: Query<&Window>,
     cams: Query<(&Camera, &GlobalTransform, &SuisCameraRay)>,
-    mut input_methods: Query<(&mut SpatialInputData, Has<InputMethodDisabled>)>,
+    mut input_methods: Query<(
+        &mut SpatialInputData,
+        &mut InputMethod,
+        &mut Transform,
+        Has<InputMethodDisabled>,
+    )>,
     mut cmds: Commands,
 ) {
     let Ok(primary_window_ent) = primary_window.single() else { return; };
@@ -97,28 +102,38 @@ fn update_camera_ray(
         };
 
         let Ok(window) = windows.get(window_ent) else { continue; };
-        let Ok((mut spatial_data, disabled)) = input_methods.get_mut(suis_ray.pointer_entity) else { continue; };
+        let Ok((mut spatial_data, mut input_method, mut handler_gt, disabled)) =
+            input_methods.get_mut(suis_ray.pointer_entity)
+        else { continue; };
 
         let mut ray_found = false;
 
-        // Bevy 0.17 viewport_to_world is viewport-aware. 
-        // If the mouse is outside the camera's rect, it returns an Error.
         if let Some(cursor_pos) = window.cursor_position() {
             if let Ok(ray) = camera.viewport_to_world(cam_transform, cursor_pos) {
                 *spatial_data = SpatialInputData::Ray(ray);
+
+                // Convert ray → transform
+                handler_gt.translation = ray.origin;
+                handler_gt.rotation =
+                    Quat::from_rotation_arc(Vec3::NEG_Z, *ray.direction);
+
                 ray_found = true;
 
                 if disabled {
-                    cmds.entity(suis_ray.pointer_entity).remove::<InputMethodDisabled>();
+                    cmds.entity(suis_ray.pointer_entity)
+                        .remove::<InputMethodDisabled>();
                 }
             }
+
         }
 
         if !ray_found && !disabled {
-            cmds.entity(suis_ray.pointer_entity).insert(InputMethodDisabled);
+            cmds.entity(suis_ray.pointer_entity)
+                .insert(InputMethodDisabled);
         }
     }
 }
+
 
 fn update_mouse_data(
     mut query: Query<
