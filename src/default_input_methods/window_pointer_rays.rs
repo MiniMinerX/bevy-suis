@@ -1,7 +1,7 @@
 use std::cmp::Ordering;
 
 use bevy::{
-    camera::RenderTarget, input::mouse::MouseWheel, prelude::*, window::{PrimaryWindow, WindowRef}
+    camera::RenderTarget, ecs::{lifecycle::HookContext, world::DeferredWorld}, input::mouse::MouseWheel, prelude::*, window::{PrimaryWindow, WindowRef}
 };
 
 use crate::{
@@ -150,7 +150,7 @@ fn update_mouse_data(
         ),
         With<MouseInputMethod>,
     >,
-    mut scroll: MessageReader<MouseWheel>,
+    mut scroll: EventReader<MouseWheel>,
     buttons: Res<ButtonInput<MouseButton>>,
     config: Res<SuisMouseConfig>,
     handler_query: InputHandlerQueryHelper,

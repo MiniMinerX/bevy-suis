@@ -54,21 +54,17 @@ impl Field {
 
         // 2. Transform point to local space manually to handle scaling properly
         let rotation_inv = _rotation.inverse();
-        // Convert translation to Vec3A to match point's type
-        let translation = Vec3A::from(translation);
-        let p = rotation_inv * (point - translation);
+        let p = rotation_inv * (point.as_vec3() - translation);
         let p = p / uniform_scale; // Normalize to local unit space
 
         let local_dist = match self {
             Field::Sphere(radius) => p.length() - radius,
             Field::Cuboid(cuboid) => {
-                // Ensure that both operands are Vec3A by converting cuboid.half_size to Vec3A if necessary
-                let q = p.abs() - Vec3A::from(cuboid.half_size);
-                let outside = q.max(Vec3A::ZERO).length();
-                let inside = q.x.max(q.y).max(q.z).min(0.0);
-                outside + inside
+                let q = p.abs() - cuboid.half_size;
+                q.max(Vec3::ZERO).length() + q.x.max(q.y.max(q.z)).min(0.0)
             }
             Field::Torus(torus) => {
+                // Your Torus math was actually correct, but standardizing types helps
                 let q = Vec2::new(p.xz().length() - torus.major_radius, p.y);
                 q.length() - torus.minor_radius
             }
