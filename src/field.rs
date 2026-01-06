@@ -46,32 +46,39 @@ impl Field {
     /// point should be in world-space
     pub fn distance(&self, field_transform: &GlobalTransform, point: impl Into<Vec3A>) -> f32 {
         let point = point.into();
-        let world_to_local_matrix = field_transform.to_matrix().inverse();
-        let p = world_to_local_matrix.transform_point3a(point);
-        match self {
+        
+        // 1. Handle Scaling: To get accurate world-space distances, 
+        // we need to know the scale of the object.
+        let (scale, _rotation, translation) = field_transform.to_scale_rotation_translation();
+        let uniform_scale = scale.max_element(); // SDFs work best with uniform scaling
+
+        // 2. Transform point to local space manually to handle scaling properly
+        let rotation_inv = _rotation.inverse();
+        let p = rotation_inv * (point.as_vec3() - translation);
+        let p = p / uniform_scale; // Normalize to local unit space
+
+        let local_dist = match self {
             Field::Sphere(radius) => p.length() - radius,
             Field::Cuboid(cuboid) => {
-                let q = Vec3::new(
-                    p.x.abs() - cuboid.half_size.x,
-                    p.y.abs() - cuboid.half_size.y,
-                    p.z.abs() - cuboid.half_size.z,
-                );
-                let v = Vec3::new(q.x.max(0_f32), q.y.max(0_f32), q.z.max(0_f32));
-                v.length() + q.x.max(q.y.max(q.z)).min(0_f32)
+                let q = p.abs() - cuboid.half_size;
+                q.max(Vec3::ZERO).length() + q.x.max(q.y.max(q.z)).min(0.0)
             }
             Field::Torus(torus) => {
-                let q = vec2(p.xz().length() - torus.major_radius, p.y);
+                // Your Torus math was actually correct, but standardizing types helps
+                let q = Vec2::new(p.xz().length() - torus.major_radius, p.y);
                 q.length() - torus.minor_radius
             }
             Field::Cylinder(cylinder) => {
-                let d = vec2(
-                    p.xz().length().abs() - cylinder.radius,
-                    p.y.abs() - cylinder.half_height,
-                );
-                d.x.max(d.y).min(0.0) + d.max(vec2(0.0, 0.0)).length()
+                let d = Vec2::new(p.xz().length(), p.y).abs() - 
+                        Vec2::new(cylinder.radius, cylinder.half_height);
+                d.x.max(d.y).min(0.0) + d.max(Vec2::ZERO).length()
             }
-        }
+        };
+
+        // 3. Scale the distance back to world units
+        local_dist * uniform_scale
     }
+
     pub fn raymarch(&self, field_transform: &GlobalTransform, ray: Ray3d) -> RayMarchResult {
         let mut result = RayMarchResult {
             closest_distance: f32::MAX,
@@ -80,16 +87,28 @@ impl Field {
             ray_steps: 0,
         };
 
+        // Standard epsilon for "hitting" a surface
+        const HIT_EPSILON: f32 = 0.001;
+
         while result.ray_steps < RAYMARCH_MAX_STEPS && result.ray_lenght < RAYMARCH_MAX_DISTANCE {
             let point = ray.origin + (ray.direction.as_vec3() * result.ray_lenght);
             let distance = self.distance(field_transform, point);
+
+            // Update closest approach tracking
             if distance < result.closest_distance {
                 result.closest_distance = distance;
                 result.deepest_point_ray_length = result.ray_lenght;
             }
-            // max_distance isn't meant for this but it doesn't make sense to march further than the
-            // limit
+
+            // HIT DETECTION: Stop if we are close enough to the surface
+            if distance < HIT_EPSILON {
+                break; 
+            }
+
+            // Move the ray forward by the safe distance
+            // We use a small minimum to prevent infinite loops at surface edges
             result.ray_lenght += distance.max(RAYMARCH_MIN_STEP_SIZE);
+            result.ray_steps += 1;
         }
 
         result
