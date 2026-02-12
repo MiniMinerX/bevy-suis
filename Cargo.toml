@@ -16,12 +16,12 @@ bevy = { version = "0.18.0", features = [
 	"bevy_gizmos",
 	"bevy_pbr",
 ], default-features = false }
-bevy_mod_xr = { git = "https://github.com/awtterpip/bevy_oxr.git", rev = "728581d" }
+bevy_mod_xr = "0.5.0"
 schminput = { git = "https://github.com/MiniMinerX/Schminput", branch = "bevy-0.18" }
 
 [dev-dependencies]
-bevy_mod_openxr = { git = "https://github.com/awtterpip/bevy_oxr.git", rev = "728581d" }
-openxr = "0.19"
+bevy_mod_openxr = "0.5.0"
+openxr = "0.21.1"
 bevy = { version = "0.18.0", default-features = false }
 
 
