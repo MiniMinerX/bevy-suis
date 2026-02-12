@@ -137,7 +137,7 @@ fn update_mouse_data(
 
 fn update_input_method_ray(
     primary_window: Query<Entity, With<PrimaryWindow>>,
-    cams: Query<(&Camera, &GlobalTransform)>,
+    cams: Query<(&Camera, &RenderTarget, &GlobalTransform)>,
     windows: Query<(&Window, &SuisWindowCursor)>,
     mut input_method: Query<
         (&mut SpatialInputData, Has<InputMethodDisabled>),
@@ -151,13 +151,13 @@ fn update_input_method_ray(
     };
 
     // this doesn't yet support multiple pointers per window, iirc that might be added in bevy 0.15
-    for ((camera, cam_transform), window) in cams.iter().filter_map(|v| match v.0.target {
-        RenderTarget::Window(w) => Some((v, w)),
-        _ => None,
+    for (camera, cam_transform, window_ref) in cams.iter().filter_map(|(camera, target, cam_transform)| {
+        let RenderTarget::Window(w) = target else { return None };
+        Some((camera, cam_transform, w))
     }) {
-        let window = match window {
+        let window = match window_ref {
             WindowRef::Primary => primary_window,
-            WindowRef::Entity(e) => e,
+            WindowRef::Entity(e) => *e,
         };
         let Ok((window, suis_cursor)) = windows.get(window) else {
             error_once!("Invalid window entity!");
