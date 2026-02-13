@@ -1036,7 +1036,7 @@ checksum = "7ef8e4b7e61dfe7719bb03c884dc270cd46a82efb40f93e9933b990c5c190c59"
 [[package]]
 name = "bevy_mod_openxr"
 version = "0.5.0"
-source = "git+https://github.com/MiniMinerX/bevy_oxr.git?branch=fix_dlss#895da699caf6f063ab79702a9d5ddd5eb5929310"
+source = "git+https://github.com/MiniMinerX/bevy_oxr.git?branch=fix_dlss#b456aa6582c0d1cdf82eff6e08aac027138ca805"
 dependencies = [
  "android_system_properties",
  "ash",
@@ -1061,7 +1061,7 @@ dependencies = [
 [[package]]
 name = "bevy_mod_xr"
 version = "0.5.0"
-source = "git+https://github.com/MiniMinerX/bevy_oxr.git?branch=fix_dlss#895da699caf6f063ab79702a9d5ddd5eb5929310"
+source = "git+https://github.com/MiniMinerX/bevy_oxr.git?branch=fix_dlss#b456aa6582c0d1cdf82eff6e08aac027138ca805"
 dependencies = [
  "bevy_app",
  "bevy_camera",
