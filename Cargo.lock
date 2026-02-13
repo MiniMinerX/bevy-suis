@@ -4201,7 +4201,7 @@ dependencies = [
 [[package]]
 name = "schminput"
 version = "0.5.0"
-source = "git+https://github.com/MiniMinerX/Schminput?branch=bevy-0.18#8e628ac685408f048970eb9e10b4b8fb7d32a55d"
+source = "git+https://github.com/MiniMinerX/Schminput?branch=bevy-0.18#31f58e64353fdfe3600ebf249adfa4cff644e9f0"
 dependencies = [
  "atomicow",
  "bevy",

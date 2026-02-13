@@ -7,6 +7,7 @@ license = "MIT"
 [features]
 default = []
 xr = ["schminput/xr"]
+raw_vulkan_init = ["schminput/raw_vulkan_init", "bevy_mod_openxr/raw_vulkan_init"]
 
 [dependencies]
 bevy = { version = "0.18.0", features = [
@@ -20,7 +21,7 @@ bevy_mod_xr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "fi
 schminput = { git = "https://github.com/MiniMinerX/Schminput", branch = "bevy-0.18" }
 
 [dev-dependencies]
-bevy_mod_openxr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "fix_dlss", features = ["raw_vulkan_init"] }
+bevy_mod_openxr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "fix_dlss" }
 openxr = "0.21.1"
 bevy = { version = "0.18.0", default-features = false }
 

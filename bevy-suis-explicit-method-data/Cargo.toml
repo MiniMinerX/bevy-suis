@@ -8,4 +8,4 @@ bevy = "0.18.0"
 schminput = { git = "https://github.com/MiniMinerX/Schminput", features = [
 	"xr",
 ], branch = "bevy-0.18" }
-bevy-suis.path = ".."
+bevy-suis = { path = "..", features = ["xr"] }

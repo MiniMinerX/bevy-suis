@@ -1,8 +1,4 @@
-use bevy::{
-    math::{Dir3A, Mat4, Quat, Vec3, Vec3A},
-    prelude::{GlobalTransform, TransformPoint as _},
-    reflect::Reflect,
-};
+
 
 use crate::field::Field;
 
