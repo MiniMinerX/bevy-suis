@@ -1036,8 +1036,7 @@ checksum = "7ef8e4b7e61dfe7719bb03c884dc270cd46a82efb40f93e9933b990c5c190c59"
 [[package]]
 name = "bevy_mod_openxr"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "26876fae6f831e0f948368155a72d7c3929aa51d0b612211150cd44aaa322e69"
+source = "git+https://github.com/MiniMinerX/bevy_oxr.git?branch=fix_dlss#895da699caf6f063ab79702a9d5ddd5eb5929310"
 dependencies = [
  "android_system_properties",
  "ash",
@@ -1062,8 +1061,7 @@ dependencies = [
 [[package]]
 name = "bevy_mod_xr"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5bb642c8d8ef9e4ad5c15d6790764060ae3bf9dcf8bb4c639a7ea6fb3b1119d0"
+source = "git+https://github.com/MiniMinerX/bevy_oxr.git?branch=fix_dlss#895da699caf6f063ab79702a9d5ddd5eb5929310"
 dependencies = [
  "bevy_app",
  "bevy_camera",
@@ -4203,7 +4201,7 @@ dependencies = [
 [[package]]
 name = "schminput"
 version = "0.5.0"
-source = "git+https://github.com/MiniMinerX/Schminput?branch=bevy-0.18#7bb66c67d7ea73d6d597b44cc615d3721a80c418"
+source = "git+https://github.com/MiniMinerX/Schminput?branch=bevy-0.18#8e628ac685408f048970eb9e10b4b8fb7d32a55d"
 dependencies = [
  "atomicow",
  "bevy",
