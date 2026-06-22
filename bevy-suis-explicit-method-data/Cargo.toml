@@ -1,11 +1,11 @@
 [package]
 name = "bevy-suis-explicit-method-data"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 
 [dependencies]
-bevy = "0.18.0"
+bevy = { workspace = true }
 schminput = { git = "https://github.com/MiniMinerX/Schminput", features = [
 	"xr",
-], branch = "bevy-0.18" }
+], branch = "bevy-0.19" }
 bevy-suis = { path = "..", features = ["xr"] }

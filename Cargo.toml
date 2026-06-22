@@ -7,24 +7,18 @@ license = "MIT"
 [features]
 default = []
 xr = ["schminput/xr"]
-raw_vulkan_init = ["schminput/raw_vulkan_init", "bevy_mod_openxr/raw_vulkan_init"]
+raw_vulkan_init = []
 
 [dependencies]
-bevy = { version = "0.19", features = [
-	"bevy_asset",
-	"bevy_camera",
-	"bevy_color",
-	"bevy_gizmos",
-	"bevy_pbr",
-], default-features = false }
-bevy_mod_xr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "bevy-0.18-no-static" }
-schminput = { git = "https://github.com/MiniMinerX/Schminput", branch = "bevy-0.18" }
+bevy = { workspace = true }
+bevy_mod_xr = { workspace = true }
+bevy_xr_utils = { workspace = true }
+schminput = { git = "https://github.com/MiniMinerX/Schminput", branch = "bevy-0.19" }
 
 [dev-dependencies]
-bevy_mod_openxr = { git = "https://github.com/MiniMinerX/bevy_oxr.git", branch = "bevy-0.18-no-static" }
-openxr = "0.21.1"
-bevy = { version = "0.18.0", default-features = false }
-
+bevy_mod_openxr = { workspace = true }
+openxr = { workspace = true }
+bevy = { workspace = true, default-features = true }
 
 [lints.clippy]
 too_many_arguments = "allow"
@@ -32,3 +26,19 @@ type_complexity = "allow"
 
 [workspace]
 members = ["bevy-suis-explicit-method-data"]
+
+[workspace.dependencies]
+bevy = { version = "0.19", default-features = false, features = [
+	"bevy_asset",
+	"bevy_camera",
+	"bevy_color",
+	"bevy_gizmos",
+	"bevy_pbr",
+	"zstd_rust",
+] }
+
+bevy_mod_openxr = { git = "https://github.com/MiniMinerX/bevy_oxr", branch = "bevy-0.19-no-static", package = "bevy_mod_openxr", version = "0.6.0" }
+bevy_mod_xr   = { git = "https://github.com/MiniMinerX/bevy_oxr", branch = "bevy-0.19-no-static", package = "bevy_mod_xr",   version = "0.6.0" }
+bevy_xr_utils = { git = "https://github.com/MiniMinerX/bevy_oxr", branch = "bevy-0.19-no-static", package = "bevy_xr_utils", version = "0.6.0" }
+
+openxr = "0.21.1"
