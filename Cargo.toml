@@ -10,7 +10,7 @@ xr = ["schminput/xr"]
 raw_vulkan_init = ["schminput/raw_vulkan_init", "bevy_mod_openxr/raw_vulkan_init"]
 
 [dependencies]
-bevy = { version = "0.18.0", features = [
+bevy = { version = "0.19", features = [
 	"bevy_asset",
 	"bevy_camera",
 	"bevy_color",
